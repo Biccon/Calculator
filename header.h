@@ -153,31 +153,38 @@ char *replaceAll(char *s, const char *olds, const char *news) {
     return result;
 }
 
-char *inputExpression(){
-    char *expression = (char *)calloc(sizeof(char), 300);
-    char *isCal;
-    char *isExit;
-    while (1) {
-        char *input = (char *)malloc(sizeof(char) * 100);
-        scanf("%s", input); // 사용자 입력
-        strcat(expression, trim(input)); // 입력받은 수식을 뒤에 갖다 붙인다
-        free(input);
-        
-        isCal = strstr(expression, "CAL");
-        isExit = strstr(expression, "EXIT");
-        
-        if (isCal != NULL || isExit != NULL){  //CAL이 포함되어있으면 while문 종료
-            break;
-        }
-    }
-    if(isExit != NULL){ // Exit가 입력 받아졌고
-        if(isCal == NULL || isCal > isExit) // CAL이 입력되어있지 않거나, EXIT가 CAL보다 앞에 있는 경우
-            return "EXIT"; // EXIT리턴
-    }
-    int len = strlen(expression) - strlen(strstr(expression, "CAL"));
-    memset(expression+len, 0, sizeof(char) * 300 - len); // 식 뒤 부분을 null로 만들다
-    return expression; // 식 반환 및 공백 제거
-}
+char *inputExpression()
+{ 
+     char *expression = (char *)calloc(sizeof(char), 300); 
+     char *isCal; 
+     char *isExit; 
+     
+     while (1) 
+     { 
+         char *input = (char *)malloc(sizeof(char) * 100); 
+         scanf("%s", input);  
+         strcat(expression, trim(input)); 
+         free(input); 
+          
+         isCal = strstr(expression, "CAL"); 
+         isExit = strstr(expression, "EXIT"); 
+          
+         if (isCal != NULL || isExit != NULL)
+         {  
+             break; //CAL이 포함되어있으면 while문 종료 
+         } 
+     } 
+
+     if(isExit != NULL)
+     { // Exit가 입력 받아졌고 
+         if(isCal == NULL || isCal > isExit) // CAL이 입력되어있지 않거나, EXIT가 CAL보다 앞에 있는 경우 
+             return "EXIT";
+     } 
+
+     int len = strlen(expression) - strlen(strstr(expression, "CAL")); 
+     memset(expression+len, 0, sizeof(char) * 300 - len);
+     return expression;  
+ }
 
 char *replaceRegister(LinkedList *list, char *exp){
     char *tempExp = (char*)malloc(sizeof(char) * 300);
@@ -202,43 +209,51 @@ char *replaceRegister(LinkedList *list, char *exp){
     }
     return tempExp;
 }
-char *assignExpression(char *exp){
-    char *tempExp = exp;
-    char *pos;
-    while((pos = strstr(tempExp, "->"))){ // -> 포함하고있을때 나눠야함
-        char *expression = substr(tempExp, 0, strlen(tempExp) - strlen(pos)); // -> 이전의 식
-        char *temp = substr(pos + strlen("->"), 0, 3);
-        
-        if(temp == NULL)
-            return "error";
-        else {
-            // assign 변수 이름 유효성 체크
-            if(*(temp) == '[' && *(temp+2) == ']' && 'a' <= *(temp+1) && *(temp+1) <= 'z'){
-                char *name = (char*)malloc(sizeof(char)*2);
-                sprintf(name, "%c", *(temp+1));
-                
-                // check register expression에 정의되지 않은 register이 쓰인 경우 오류
-                if(!Registe_Right(reg, expression))
-                    return "error";
-                expression = replaceRegister(reg, expression);
-                expression = replaceExpression(expression);
-                if(hasError(expression))
-                    return "error";
-                else {
-                    expression = postfix(expression);
-                    Node *tempNode = get_node_by_name(reg, name);
-                    if(tempNode != NULL)
-                        remove_node(tempNode);
-                    add_last(reg, name, calc(expression));
-                    tempExp = pos + strlen("->") + 3;
-                }
-            } else {
-                return "error";
-            }
-        }
-    }
-    return tempExp;
-}
+
+
+char *assignExpression(char *exp)
+{ 
+     char *tempExp = exp; 
+     char *pos; 
+
+     while((pos = strstr(tempExp, "->")))
+     { // '->' 포함하고있을때 나눠야함 
+         char *expression = substr(tempExp, 0, strlen(tempExp) - strlen(pos)); // -> 이전의 식 
+         char *temp = substr(pos + strlen("->"), 0, 3); 
+          
+         if(temp == NULL) 
+             return "error"; 
+         else 
+         {  
+             if(*(temp) == '[' && *(temp+2) == ']' && 'a' <= *(temp+1) && *(temp+1) <= 'z')
+             { 
+                 char *name = (char*)malloc(sizeof(char)*2); 
+                 sprintf(name, "%c", *(temp+1)); 
+                  
+                 if(!Registe_Right(reg, expression)) 
+                     return "error"; 
+                 expression = replaceRegister(reg, expression); 
+                 expression = replaceExpression(expression); 
+                 if(hasError(expression)) 
+                     return "error"; 
+                 else 
+                 { 
+                     expression = postfix(expression); 
+                     Node *tempNode = get_node_by_name(reg, name); 
+                     if(tempNode != NULL) 
+                         remove_node(tempNode); 
+                     add_last(reg, name, calc(expression)); 
+                     tempExp = pos + strlen("->") + 3; 
+                 } 
+             } 
+             else 
+             { 
+                 return "error"; 
+             } 
+         } 
+     } 
+     return tempExp; 
+ } 
 
 double calc(char *exp){
     Stack stack;
@@ -287,19 +302,27 @@ double calc(char *exp){
     return pop(&stack);
 }
 
-double calculate(char *operator, char *expression){
-    double result = calc(expression);
-    if(strcmp(operator, "sin") == 0){
-        result = sin(result);
-    } else if(strcmp(operator, "cos") == 0){
-        result = cos(result);
-    } else if(strcmp(operator, "exp") == 0){
-        result = exp(result);
-    } else if(strcmp(operator, "log") == 0){
-        result = log(result);
-    }
-    
-    return result;
+double calculate(char *operator, char *expression)
+{ 
+     double result = calc(expression); 
+     if(strcmp(operator, "sin") == 0)
+     { 
+         result = sin(result); 
+     } 
+     else if(strcmp(operator, "cos") == 0)
+     { 
+         result = cos(result); 
+     } 
+     else if(strcmp(operator, "exp") == 0)
+     { 
+         result = exp(result); 
+     } 
+     else if(strcmp(operator, "log") == 0)
+     { 
+         result = log(result); 
+     } 
+      
+     return result; 
 }
 
 char *replaceExpression(char *exp){
@@ -469,40 +492,47 @@ void printList(LinkedList *list)
     }
 }
 
-int Registe_Right(LinkedList *list, char *exp){
-    int i;
-    int length = strlen(exp);
-    char tok;
-    
-    for(i=0;i<length;i++){
-        tok = exp[i];
-        if(tok == '[')
-        {
-            char *temp = (char*)calloc(sizeof(char), 2);
-            temp[0] = exp[++i];
-            temp[1] = '\0';
-            Node *tempNode = get_node_by_name(reg, temp);
-            if(tempNode == NULL)
-                return false;
-        }
-    }
-    return true;
+int Registe_Right(LinkedList *list, char *exp)
+{ 
+     int i; 
+     int length = strlen(exp); 
+     char tok; 
+      
+     for(i=0;i<length;i++)
+     { 
+         tok = exp[i]; 
+         if(tok == '[') 
+         { 
+             char *temp = (char*)calloc(sizeof(char), 2); 
+             temp[0] = exp[++i]; 
+             temp[1] = '\0'; 
+             Node *tempNode = get_node_by_name(reg, temp); 
+
+             if(tempNode == NULL) 
+                 return false; 
+         } 
+     } 
+     return true; 
 }
 
-int isNumberExpression(char *exp){
-    int numberExpression = false;
-    int expLen = strlen(exp);
-    int i;
-    char tok;
-    for(i=0;i<expLen;i++){
-        tok = exp[i];
-        if(('0' <= tok && tok <= '9') || tok == '.')
-            continue;
-        else
-            return false;
-    }
-    return numberExpression;
-}
+int isNumberExpression(char *exp)
+{ 
+     int numberExpression = false; 
+     int expLen = strlen(exp); 
+     int i; 
+     char tok; 
+     for(i=0;i<expLen;i++)
+     { 
+         tok = exp[i]; 
+
+         if(('0' <= tok && tok <= '9') || tok == '.') 
+             continue; 
+         else 
+             return false; 
+     } 
+
+     return numberExpression; 
+ }
 
 int isDivZero(char *exp){ //바꾸기 전 expression을 검사하는 함수
     int expLen = strlen(exp);
