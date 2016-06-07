@@ -616,7 +616,6 @@ int hasOperatorBetweenNumber(char * exp) {
     
 }
 
-
 int isExpRight(char *exp)
 {
    int i, j;
@@ -699,6 +698,7 @@ int isExpRight(char *exp)
                         i++;
                         temp3 = exp[i + 1];
                      }
+                     
                      i++;
                      char temp4 = exp[i + 1];
                      if (temp3 == ')'&&temp4==')')
@@ -794,11 +794,8 @@ int isExpRight(char *exp)
                      }
                      continue;
                   }
-                  else
-                  {
-                     break;
-                  }
                }
+               return true;
             }
             else if (temp == ']') 
             {
@@ -819,7 +816,6 @@ int isExpRight(char *exp)
    }
    return true;
 }
-
 
 int onlyNumber(int i, char *exp)
 {
