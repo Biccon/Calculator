@@ -16,11 +16,10 @@ int main(int argc, char **argv){
 				exp = assignExpression(exp);
 				printList(reg);
 				if(Registe_Right(reg, exp) == false)
-					printf("에러 발생222\n");
-				else {exp = replaceRegister(reg, exp);
+					printf("에러 발생\n");
+				else {
+                    exp = replaceRegister(reg, exp);
 					exp = replaceExpression(exp);
-					//printf("%s\n", exp);
-					//printf("%d %d %d\n", isExpRight(exp), hasOperatorBetweenNumber(exp), isDivZero(exp));
 					if(hasError(exp)){
 						printf("에러 발생\n");
 					} else {
@@ -34,3 +33,4 @@ int main(int argc, char **argv){
     free(reg);
 }
 
+		
