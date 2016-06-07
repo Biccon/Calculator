@@ -478,15 +478,12 @@ int Registe_Right(LinkedList *list, char *exp){
         tok = exp[i];
         if(tok == '[')
         {
-            Node *NewNode = list -> head -> next;
-            char temp[10];
+            char *temp = (char*)calloc(sizeof(char), 2);
             temp[0] = exp[++i];
-            while(NewNode != list -> tail){
-                if(strcmp(temp, NewNode -> name) == 0)
-                    return true;
-                NewNode = NewNode -> next;
-            }
-            return false;
+            temp[1] = '\0';
+            Node *tempNode = get_node_by_name(reg, temp);
+            if(tempNode == NULL)
+                return false;
         }
     }
     return true;
