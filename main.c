@@ -8,8 +8,8 @@ int main(int argc, char **argv){
 		char *exp;
 		exp = inputExpression();
 		if(strcmp(exp, "EXIT") == 0)
-			printf("\n");
-			//break;
+			//printf("\n");
+			break;
 		else {
 			if(!ParenMatch(exp)){
 				printf("에러 발생1\n");
@@ -25,7 +25,9 @@ int main(int argc, char **argv){
 						printf("에러 발생3\n");
 						printf("%d %d %d\n", isExpRight(exp), hasOperatorBetweenNumber(exp), isDivZero(exp));
 					} else {
-						printf("isExpRight : %d\n", isExpRight(exp));
+						if(isExpRight(exp) == 0){
+							printf("isExpRight 함수 결과값 %d\n", isExpRight(exp));
+						}
 						exp = postfix(exp);
 						printf("결과값 = %lf\n", calc(exp));
 					}
@@ -37,3 +39,4 @@ int main(int argc, char **argv){
 }
 
 		
+
