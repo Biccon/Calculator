@@ -1031,12 +1031,18 @@ void print_stack(Stack *s)
     printf("\n");
 }
 
-int checkOp(char op1, char op2){
-    if(op1 == '(')
-        return op2 == ')';
-    else if(op1 == '[')
-        return op2 == ']';
-    return 0;
+int checkOp(char op1, char op2)
+{
+   if (op1 == '(')
+   {
+      return op2 == ')';
+   }
+   else if (op1 == '[')
+   {
+      return op2 == ']';
+   }
+
+   return 0;
 }
 
 int ParenMatch(char *c)
@@ -1076,68 +1082,90 @@ int ParenMatch(char *c)
         return 0;
     }
 }
+char *getExpression(char *exp) 
+{
+   char *tempExp = (char *)calloc(sizeof(char), 300);
+   Stack s; 
+   init_stack(&s);
+   int i;
+   int length = strlen(exp);
+   int flag = 0;
+   char tok;
 
-char *getExpression(char *exp){ // 괄호 열리는 곳부터 닫히는 곧 까지 구해오는 함수
-    /*
-     ex)
-     sin(1+ (2+3))
-     sin뒤의 (1+ (2+3))를 구해주는 함수
-     */
-    char *tempExp = (char *)calloc(sizeof(char), 300);
-    Stack s; // ( add and push
-    init_stack(&s);
-    int i;
-    int expLen = strlen(exp);
-    int flag = 0;
-    char tok;
-    for(i=0; i < expLen; i++){
-        tok = exp[i];
-        if(flag == 0 && tok != '(')
-            continue;
-        else if(flag == 0 && tok == '('){
-            flag = 1;
-            push(&s, tok);
+   for (i = 0; i <length; i++)
+   {
+      tok = exp[i];
+      if (flag == 0 && tok != '(')
+      {
+         continue;
+      }
+      else if (flag == 0 && tok == '(')
+      {
+         flag = 1;
+         push(&s, tok);
+         sprintf(tempExp + strlen(tempExp), "%c", tok);
+      }
+      else if (flag != 0 && tok == '(')
+      {
+         push(&s, tok);
+         sprintf(tempExp + strlen(tempExp), "%c", tok);
+      }
+      else 
+      {
+         if (isEmpty(&s))
+         {
+            break;
+         }
+         if (tok == ')')
+         {
+            sprintf(tempExp + strlen(tempExp), ")");
+            pop(&s);
+         }
+         else 
+         {
             sprintf(tempExp + strlen(tempExp), "%c", tok);
-        } else if(flag != 0 && tok == '('){
-            push(&s, tok);
-            sprintf(tempExp + strlen(tempExp), "%c", tok);
-        } else {
-            if(isEmpty(&s))
-                break;
-            if(tok == ')'){
-                sprintf(tempExp + strlen(tempExp), ")");
-                pop(&s);
-            } else {
-                sprintf(tempExp + strlen(tempExp), "%c", tok);
-            }
-        }
-    }
-    return tempExp;
+         }
+      }
+   }
+   return tempExp;
 }
 
-int getIndexOutOfExpression(char *exp){
-    Stack s;
-    init_stack(&s);
-    int i;
-    int expLen = strlen(exp);
-    int flag = 0;
-    char tok;
-    for(i=0; i<expLen; i++){
-        tok = exp[i];
-        if(flag == 0 && tok != '(')
-            continue;
-        else if(flag == 0 && tok == '('){
-            flag = 1;
-            push(&s, tok);
-        } else if(flag != 0 && tok == '('){
-            push(&s, tok);
-        } else {
-            if(tok == ')'){
-                pop(&s);
-            }
-            if(isEmpty(&s))
-                return i+1;
-        }
-    }
-    return 0;
+int getIndexOutOfExpression(char *exp)
+{
+   Stack s;
+   init_stack(&s);
+   int i;
+   int length = strlen(exp);
+   int flag = 0;
+   char tok;
+
+   for (i = 0; i<length; i++)
+   {
+      tok = exp[i];
+      if (flag == 0 && tok != '(')
+      {
+         continue;
+      }
+      else if (flag == 0 && tok == '(')
+      {
+         flag = 1;
+         push(&s, tok);
+      }
+      else if (flag != 0 && tok == '(')
+      {
+         push(&s, tok);
+      }
+      else 
+      {
+         if (tok == ')')
+         {
+            pop(&s);
+         }
+         if (isEmpty(&s))
+         {
+            return i + 1;
+         }
+      }
+   }
+   return 0;
 }
