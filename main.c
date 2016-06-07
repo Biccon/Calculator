@@ -8,23 +8,24 @@ int main(int argc, char **argv){
 		char *exp;
 		exp = inputExpression();
 		if(strcmp(exp, "EXIT") == 0)
-			break;
+			printf("\n");
+			//break;
 		else {
 			if(!ParenMatch(exp)){
-				printf("괄호 쌍이 맞지 않음\n");
+				printf("에러 발생1\n");
 			} else {
 				exp = assignExpression(exp);
-				printList(reg);
-				printf("%d\n", Registe_Right(reg, exp));
 				if(Registe_Right(reg, exp) == false)
-					printf("에러 발생\n");
+					printf("에러 발생2\n");
 				else {
                     exp = replaceRegister(reg, exp);
 					exp = replaceExpression(exp);
+						
 					if(hasError(exp)){
-						printf("에러 발생\n");
+						printf("에러 발생3\n");
+						printf("%d %d %d\n", isExpRight(exp), hasOperatorBetweenNumber(exp), isDivZero(exp));
 					} else {
-						printf("%s\n", exp);
+						printf("isExpRight : %d\n", isExpRight(exp));
 						exp = postfix(exp);
 						printf("결과값 = %lf\n", calc(exp));
 					}

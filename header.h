@@ -562,6 +562,7 @@ int isDivZero(char *exp){ //바꾸기 전 expression을 검사하는 함수
 }
 
 int hasError(char *exp){
+	return (!(hasOperatorBetweenNumber(exp) && !isDivZero(exp)) || (strcmp(exp, "error") == 0));
     return (!(isExpRight(exp) && hasOperatorBetweenNumber(exp) && !isDivZero(exp))) || (strcmp(exp, "error") == 0);
 }
 
@@ -615,205 +616,208 @@ int hasOperatorBetweenNumber(char * exp) {
     
 }
 
+
 int isExpRight(char *exp)
 {
-    int i, j;
-    int k;
-    dot = 0;
-    int num = 0;
-    int open_num = 0;
-    int close_num = 0;
-    int length = strlen(exp);
-    int error = false;
-    char tok;
-    Stack stack;
-    
-    init_stack(&stack);
-    
-    for (i = 0; i < length; i++)
-    {
-        tok = exp[i];
-        if (tok == ' ')
-        {
-            continue;
-        }
-        else if (tok == '+' || tok == '-'||tok=='*'||tok=='/')
-        {
-            if (i == 0)
+   int i, j;
+   int k;
+   dot = 0;
+   int num = 0;
+   int open_num = 0;
+   int close_num = 0;
+   int length = strlen(exp);
+   int error = false;
+   char tok;
+   Stack stack;
+
+   init_stack(&stack);
+
+   for (i = 0; i < length; i++)
+   {
+      tok = exp[i];
+      if (tok == ' ')
+      {
+         continue;
+      }
+      else if (tok == '+' || tok == '-'||tok=='*'||tok=='/')
+      {
+         if (i == 0)
+         {
+            return false;
+         }
+         else if (i == length - 1)
+         {
+            return false;
+         }
+         else
+         {
+            char temp = exp[i - 1]; 
+            if (tok == ' ')
             {
-                return false;
+               continue;
             }
-            else if (i == length - 1)
+            else if (temp=='(')
             {
-                return false;
+               init_stack(&stack);
+               num = 0;
+
+               if (tok == '*' || tok == '/')
+               {
+                  return false;
+               }
+               char temp2 = exp[i+1];
+               if (temp2 == '(')
+               {
+                  i++;
+                  if(onlyNumber(i, exp) == 0)  //(-0.999)
+                  {
+                     char temp3 = exp[i + 1];
+                     if (temp3 == ')')
+                     {
+                        return false;
+                     }
+                     else if (dot >= 2)
+                     {
+                        return false;
+                     }
+                     continue;
+                  }
+                  else
+                  {   
+                     char temp3 = exp[i + 1];
+                     while (temp3 != ')')
+                     {
+                        if (open_num != 0)
+                        {
+                           i++;
+                           temp3 = exp[i + 1];
+                        }
+                        if (temp3== '(')
+                        {
+                           open_num++;
+                        }
+                        i++;
+                        temp3 = exp[i + 1];
+                     }
+                     i++;
+                     char temp4 = exp[i + 1];
+                     if (temp3 == ')'&&temp4==')')
+                     {
+                        return true;
+
+                     }
+                     return false;
+                  }
+               }
+               else if (temp2 == '[')
+               {
+                  i++;
+                  tok = exp[i + 1];
+                  char temp3 = exp[i + 3];
+                  if (temp3 == '+' || temp3 == '-'||temp3=='/'||temp3=='*')
+                  {
+                     return false;
+                  }
+                  continue;
+               }
+               while (temp2 != ')')
+               {
+                  
+                  init_stack(&stack);
+                  num = 0;
+                  if (('0' <= temp2&&temp2 <= '9')||temp2=='.')
+                  {
+                     if (temp2 == '.')
+                     {
+                        dot++;
+                        if (dot >= 2)
+                        {
+                           return false;
+                        }
+                     }
+                     push(&stack, temp2);
+                     i++;
+                     temp2 = exp[i + 1];
+                     num++;
+                  }
+                  else if (temp2 == '+' || temp2 == '-' || temp2 == '*' || temp2 == '/')
+                  {
+                     return false;
+                  }
+               }
+               if (size(&stack) == 0)
+               {
+                  return false;
+               }
+               else if (num == size(&stack))
+               {
+                  continue;
+               }
+            }
+            else if ('0' <= temp&&temp <= '9')
+            {
+               char temp2 = exp[i + 1];
+               if ('0' <= temp2&&temp2 <= '9')
+               {
+                  continue;
+               }
+               else if (temp2 == ')')
+               {
+                  return false;
+               }
+               else if (temp2 == '(')
+               {
+                  i++;
+                  continue;
+               }
+            }
+            else if (temp == ')') 
+            {
+               char temp2 = exp[i + 1];
+               if ('0' <= temp2&&temp2 <= '9')
+               {
+                  continue;
+               }
+               if (temp2 == '(')
+               {
+                  i++; 
+                  if (onlyNumber(i, exp) == 0)
+                  {
+                     char temp3 = exp[i + 1];
+                     if (temp3 == ')')
+                     {
+                        return false;
+                     }
+                     else if (dot >= 2)
+                     {
+                        return false;
+                     }
+                     continue;
+                  }
+                  else
+                  {
+                     break;
+                  }
+               }
+            }
+            else if (temp == ']') 
+            {
+               char temp2 = exp[i + 1];
+               if (temp2 == '(')
+               {
+                  i++;
+                  continue;
+               }
+               continue;
             }
             else
             {
-                char temp = exp[i - 1];
-                if (tok == ' ')
-                {
-                    continue;
-                }
-                else if (temp=='(')
-                {
-                    init_stack(&stack);
-                    num = 0;
-                    
-                    if (tok == '*' || tok == '/')
-                    {
-                        return false;
-                    }
-                    char temp2 = exp[i+1];
-                    if (temp2 == '(')
-                    {
-                        i++;
-                        if(onlyNumber(i, exp) == 0)  //(-0.999)
-                        {
-                            char temp3 = exp[i + 1];
-                            if (temp3 == ')')
-                            {
-                                return false;
-                            }
-                            else if (dot >= 2)
-                            {
-                                return false;
-                            }
-                            continue;
-                        }
-                        else
-                        {
-                            char temp3 = exp[i + 1];
-                            while (temp3 != ')')
-                            {
-                                if (open_num != 0)
-                                {
-                                    i++;
-                                    temp3 = exp[i + 1];
-                                }
-                                if (temp3== '(')
-                                {
-                                    open_num++;
-                                }
-                                i++;
-                                temp3 = exp[i + 1];
-                            }
-                            
-                            i++;
-                            char temp4 = exp[i + 1];
-                            if (temp3 == ')'&&temp4==')')
-                            {
-                                return true;
-                                
-                            }
-                            return false;
-                        }
-                    }
-                    else if (temp2 == '[')
-                    {
-                        i++;
-                        tok = exp[i + 1];
-                        char temp3 = exp[i + 3];
-                        if (temp3 == '+' || temp3 == '-'||temp3=='/'||temp3=='*')
-                        {
-                            return false;
-                        }
-                        continue;
-                    }
-                    while (temp2 != ')')
-                    {
-                        
-                        init_stack(&stack);
-                        num = 0;
-                        if (('0' <= temp2&&temp2 <= '9')||temp2=='.')
-                        {
-                            if (temp2 == '.')
-                            {
-                                dot++;
-                                if (dot >= 2)
-                                {
-                                    return false;
-                                }
-                            }
-                            push(&stack, temp2);
-                            i++;
-                            temp2 = exp[i + 1];
-                            num++;
-                        }
-                        else if (temp2 == '+' || temp2 == '-' || temp2 == '*' || temp2 == '/')
-                        {
-                            return false;
-                        }
-                    }
-                    if (size(&stack) == 0)
-                    {
-                        return false;
-                    }
-                    else if (num == size(&stack))
-                    {
-                        continue;
-                    }
-                }
-                else if ('0' <= temp&&temp <= '9')
-                {
-                    char temp2 = exp[i + 1];
-                    if ('0' <= temp2&&temp2 <= '9')
-                    {
-                        continue;
-                    }
-                    else if (temp2 == ')')
-                    {
-                        return false;
-                    }
-                    else if (temp2 == '(')
-                    {
-                        i++;
-                        continue;
-                    }
-                }
-                else if (temp == ')')
-                {
-                    char temp2 = exp[i + 1];
-                    if ('0' <= temp2&&temp2 <= '9')
-                    {
-                        continue;
-                    }
-                    if (temp2 == '(')
-                    {
-                        i++;
-                        if (onlyNumber(i, exp) == 0)
-                        {
-                            char temp3 = exp[i + 1];
-                            if (temp3 == ')')
-                            {
-                                return false;
-                            }
-                            else if (dot >= 2)
-                            {
-                                return false;
-                            }
-                            continue;
-                        }
-                    }
-                    return true;
-                }
-                else if (temp == ']')
-                {
-                    char temp2 = exp[i + 1];
-                    if (temp2 == '(')
-                    {
-                        i++;
-                        continue;
-                    }
-                    continue;
-                }
-                else
-                {
-                    return false;
-                }
+               return false;
             }
-        }
-    }
-    return true;
+         }
+      }
+   }
+   return true;
 }
 
 
