@@ -15,6 +15,7 @@ int main(int argc, char **argv){
 			} else {
 				exp = assignExpression(exp);
 				printList(reg);
+				printf("%d\n", Registe_Right(reg, exp));
 				if(Registe_Right(reg, exp) == false)
 					printf("에러 발생\n");
 				else {
@@ -23,6 +24,7 @@ int main(int argc, char **argv){
 					if(hasError(exp)){
 						printf("에러 발생\n");
 					} else {
+						printf("%s\n", exp);
 						exp = postfix(exp);
 						printf("결과값 = %lf\n", calc(exp));
 					}
